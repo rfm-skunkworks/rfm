@@ -1,4 +1,5 @@
 import { Command, createCommand } from "commander";
+import { ExitStatus, logDebugInfo, logExitStatus } from "./common";
 
 export const createInstallCommand = (): Command => {
   const cmd = createCommand();
@@ -8,8 +9,13 @@ export const createInstallCommand = (): Command => {
     .alias("add")
     .description("Install realm function from registry")
     .argument("<function-name>", "realm function to install")
-    .action((funcName) => {
+    .option("-d, --debug", "log debug information")
+    .action((funcName, options) => {
       console.log(`installing function: '${funcName}'`);
+      if (options.debug) {
+        logDebugInfo(options, { funcName });
+      }
+      logExitStatus(ExitStatus.Failure);
     });
 
   return cmd;
