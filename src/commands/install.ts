@@ -1,4 +1,5 @@
 import { Command, createCommand } from "commander";
+import { realmApp } from "../realm/users";
 import RealmClient from "../clients/realm";
 
 import { ExitStatus, logDebugInfo, logExitStatus } from "./common";
@@ -15,16 +16,22 @@ export const createInstallCommand = (): Command => {
     .action(async (funcName, options) => {
       console.log(`installing function: '${funcName}'`);
       try {
-        // const res = await RealmClient.getFunctionSource();
-        // console.log(res?.data);
         if (options.debug) {
           logDebugInfo(options, { funcName });
         }
+
+        const res = await RealmClient.getFunctionSource(realmApp);
+        console.log("res:", JSON.stringify(res?.data));
+
         logExitStatus(ExitStatus.Success);
+        return;
       } catch (error) {
         const err = error as Error;
+        console.error(error);
         logExitStatus(ExitStatus.Failure, err.message);
+        return;
       }
+      console.log("objechellot");
     });
 
   return cmd;

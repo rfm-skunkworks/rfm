@@ -1,30 +1,41 @@
 import axios, { AxiosResponse } from "axios";
-import realm, { App } from "realm-web";
+import realm, { App } from "realm";
 import jwt from "jsonwebtoken";
 
-const realmClientAppId = process.env.REALM_CLIENT_APP_ID || "";
-const realmGraphQLUrl = process.env.REALM_GQL_URL || "";
 export default class RegistryClient {
-  app?: App;
-  user?: App;
+  static async loginWithJWT(app: App): Promise<string> {
+    const realmClientAppId = process.env.REALM_CLIENT_APP_ID || "";
+    const signingKey = process.env.JWT_SIGNING_KEY || "";
 
-  loginWithJWT() {
+    console.log("signing key:", signingKey);
+
     // generate jwt token
     const unixTime = Math.floor(Date.now() / 1000);
     const payload = {
       sub: realmClientAppId,
       iat: unixTime,
+      aud: realmClientAppId,
     };
-    const token = jwt.sign(payload, "", { expiresIn: "7d" });
+    const token = jwt.sign(payload, signingKey, {
+      algorithm: "HS256",
+      expiresIn: "7d",
+    });
 
-    const app = new realm.App(realmClientAppId);
-    // const jwtCredentials = realm.Credentials.jwt();
-    // app.logIn(jwtCredentials);
+    const jwtCredentials = realm.Credentials.jwt(token);
+    await app.logIn(jwtCredentials);
+
+    console.log("token:", token);
+    return token;
   }
 
-  static getFunctionSource(): Promise<AxiosResponse> {
-    const res = axios.post(realmGraphQLUrl, {
-      query: `
+  static async getFunctionSource(app: App): Promise<AxiosResponse | undefined> {
+    const realmGraphQLUrl = process.env.REALM_GQL_URL || "";
+    const jwtToken = await RegistryClient.loginWithJWT(app);
+
+    return await axios.post(
+      realmGraphQLUrl,
+      {
+        query: `
     {
       function_registries(query: {name:"foo"}) {
         _id
@@ -34,8 +45,13 @@ export default class RegistryClient {
       }
     }
     `,
-    });
-    return res;
+      },
+      {
+        headers: {
+          jwtTokenString: jwtToken,
+        },
+      }
+    );
   }
 
   static pushFunctionSource() {}
