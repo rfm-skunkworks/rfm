@@ -1,6 +1,7 @@
 build
 dist
-.idea
+.idea/
+mongodb-realm/
 
 # Created by https://www.toptal.com/developers/gitignore/api/node,visualstudiocode,vim,macos,emacs,windows,linux
 # Edit at https://www.toptal.com/developers/gitignore?templates=node,visualstudiocode,vim,macos,emacs,windows,linux

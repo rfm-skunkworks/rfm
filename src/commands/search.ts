@@ -25,8 +25,10 @@ export const createSearchCommand = (): Command => {
         .option("-n, --name [string]", "name", parseName)
         .option("-t, --tags [tags]", "tags", parseCommaSeparatedList)
         .action((options) => {
-            console.log(options)
-            logExitStatus(ExitStatus.Failure);
+            if (Object.keys(options).length === 0) {
+                logExitStatus(ExitStatus.Failure, "provide either name (-n) or tags (-t)");
+                return;
+            }
         });
 
     return cmd;
