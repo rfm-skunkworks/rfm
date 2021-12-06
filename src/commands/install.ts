@@ -1,4 +1,5 @@
 import { Command, createCommand } from "commander";
+import RealmClient from "../clients/realm";
 
 import { ExitStatus, logDebugInfo, logExitStatus } from "./common";
 
@@ -11,12 +12,19 @@ export const createInstallCommand = (): Command => {
     .description("Install realm function from registry")
     .argument("<function-name>", "realm function to install")
     .option("-d, --debug", "log debug information")
-    .action((funcName, options) => {
+    .action(async (funcName, options) => {
       console.log(`installing function: '${funcName}'`);
-      if (options.debug) {
-        logDebugInfo(options, { funcName });
+      try {
+        // const res = await RealmClient.getFunctionSource();
+        // console.log(res?.data);
+        if (options.debug) {
+          logDebugInfo(options, { funcName });
+        }
+        logExitStatus(ExitStatus.Success);
+      } catch (error) {
+        const err = error as Error;
+        logExitStatus(ExitStatus.Failure, err.message);
       }
-      logExitStatus(ExitStatus.Failure);
     });
 
   return cmd;
