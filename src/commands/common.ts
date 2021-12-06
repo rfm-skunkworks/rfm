@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { Argument, OptionValues } from "commander";
+import { OptionValues } from "commander";
 
 export enum ExitStatus {
   Success = 0,

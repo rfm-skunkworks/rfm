@@ -1,7 +1,5 @@
 import { Command, createCommand } from "commander";
 
-import { realmClient } from "@clients/realm";
-
 import { ExitStatus, logDebugInfo, logExitStatus } from "./common";
 
 export const createInstallCommand = (): Command => {
@@ -14,7 +12,6 @@ export const createInstallCommand = (): Command => {
     .argument("<function-name>", "realm function to install")
     .option("-d, --debug", "log debug information")
     .action((funcName, options) => {
-      console.log("app:", realmClient.app);
       console.log(`installing function: '${funcName}'`);
       if (options.debug) {
         logDebugInfo(options, { funcName });
