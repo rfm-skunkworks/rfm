@@ -15,8 +15,8 @@ export const createInstallCommand = (): Command => {
     .action(async (funcName, options) => {
       console.log(`installing function: '${funcName}'`);
       try {
-        const res = await RealmClient.getFunctionSource();
-        console.log(res?.data);
+        // const res = await RealmClient.getFunctionSource();
+        // console.log(res?.data);
         if (options.debug) {
           logDebugInfo(options, { funcName });
         }
