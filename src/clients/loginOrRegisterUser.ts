@@ -1,12 +1,13 @@
 const prompt = require("prompt");
 import { RealmApp } from "../index";
-import RegistryClient from "./realm";
+import { loginWithEmail, registerWithEmail } from "./realm";
 
 const registerOrLoginSchema = {
   properties: {
     registerOrLogin: {
+      description: "choose to either 'register' or 'login'",
       pattern: /\b(register)\b|\b(login)\b/,
-      message: "choose to either 'register' or 'login'",
+      message: "valid options are 'register' and 'login'",
       required: true,
     },
   },
@@ -15,12 +16,15 @@ const registerOrLoginSchema = {
 const emailAndPasswordSchema = {
   properties: {
     email: {
+      description: "enter username",
       pattern:
         /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/,
       message: "must be a valid email",
       required: true,
     },
     password: {
+      description: "enter password",
+      replace: "*",
       pattern: /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z]).{8,}$/,
       message:
         "must be >= 8 characters, contain a capital letter, lowercase letter, and number",
@@ -31,7 +35,6 @@ const emailAndPasswordSchema = {
 };
 
 export async function loginOrRegisterUserWithEmail() {
-  const client = new RegistryClient();
   prompt.start();
 
   const registerOrLogin = await prompt.get(registerOrLoginSchema);
@@ -39,7 +42,7 @@ export async function loginOrRegisterUserWithEmail() {
     let registered = false;
     do {
       const emailAndPassword = await prompt.get(emailAndPasswordSchema);
-      registered = await RegistryClient.registerWithEmail(
+      registered = await registerWithEmail(
         RealmApp,
         emailAndPassword.email,
         emailAndPassword.password
@@ -49,7 +52,7 @@ export async function loginOrRegisterUserWithEmail() {
     let loggedIn = false;
     do {
       const emailAndPassword = await prompt.get(emailAndPasswordSchema);
-      loggedIn = await RegistryClient.loginWithEmail(
+      loggedIn = await loginWithEmail(
         RealmApp,
         emailAndPassword.email,
         emailAndPassword.password

@@ -28,64 +28,6 @@ export default class RegistryClient {
     return token;
   }
 
-  static async loginWithEmail(
-    app: App,
-    email: string,
-    password: string
-  ): Promise<boolean> {
-    try {
-      const credentials = Realm.Credentials.emailPassword(email, password);
-
-      const user = await app.logIn(credentials);
-      if (user) {
-        console.log("You have successfully logged in");
-        return true;
-      } else {
-        console.log("There was an error logging you in");
-        return false;
-      }
-    } catch (err) {
-      console.log(err);
-      return false;
-    }
-  }
-
-  static async registerWithEmail(
-    app: App,
-    email: string,
-    password: string
-  ): Promise<boolean> {
-    try {
-      await app.emailPasswordAuth.registerUser({
-        email,
-        password,
-      });
-      const credentials = Realm.Credentials.emailPassword(email, password);
-      const user = await app.logIn(credentials);
-      if (user) {
-        console.log(
-          "You have successfully created a new Realm user and are now logged in."
-        );
-        return true;
-      } else {
-        console.log("There was an error registering the new user account.");
-        return false;
-      }
-    } catch (err) {
-      console.log(err);
-      return false;
-    }
-  }
-
-  static async logout(app: App): Promise<boolean> {
-    let user = app.currentUser;
-    if (user === null) {
-      return false;
-    }
-    await user.logOut();
-    return !user.isLoggedIn;
-  }
-
   static async getFunctionSource(app: App): Promise<AxiosResponse | undefined> {
     const realmGraphQLUrl = process.env.REALM_GQL_URL || "";
     const jwtToken = await RegistryClient.loginWithJWT(app);
@@ -113,4 +55,62 @@ export default class RegistryClient {
   }
 
   static pushFunctionSource() {}
+}
+
+export async function loginWithEmail(
+  app: App,
+  email: string,
+  password: string
+): Promise<boolean> {
+  try {
+    const credentials = Realm.Credentials.emailPassword(email, password);
+
+    const user = await app.logIn(credentials);
+    if (user) {
+      console.log("You have successfully logged in");
+      return true;
+    } else {
+      console.log("There was an error logging you in");
+      return false;
+    }
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+}
+
+export async function registerWithEmail(
+  app: App,
+  email: string,
+  password: string
+): Promise<boolean> {
+  try {
+    await app.emailPasswordAuth.registerUser({
+      email,
+      password,
+    });
+    const credentials = Realm.Credentials.emailPassword(email, password);
+    const user = await app.logIn(credentials);
+    if (user) {
+      console.log(
+        "You have successfully created a new Realm user and are now logged in."
+      );
+      return true;
+    } else {
+      console.log("There was an error registering the new user account.");
+      return false;
+    }
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+}
+
+export async function logout(app: App): Promise<boolean> {
+  let user = app.currentUser;
+  if (user === null) {
+    return false;
+  }
+  await user.logOut();
+  return !user.isLoggedIn;
 }
