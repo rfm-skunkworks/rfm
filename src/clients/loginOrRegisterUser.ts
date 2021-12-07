@@ -1,5 +1,4 @@
 import prompt from "prompt";
-import { RealmApp } from "../index";
 import { loginWithEmail, registerWithEmail } from "./realm";
 
 const registerOrLoginSchema = {
@@ -44,7 +43,6 @@ export async function loginOrRegisterUserWithEmail() {
       do {
         const emailAndPassword = await prompt.get(emailAndPasswordSchema);
         registered = await registerWithEmail(
-          RealmApp,
           <string>emailAndPassword.email,
           <string>emailAndPassword.password
         );
@@ -54,7 +52,6 @@ export async function loginOrRegisterUserWithEmail() {
       do {
         const emailAndPassword = await prompt.get(emailAndPasswordSchema);
         loggedIn = await loginWithEmail(
-          RealmApp,
           <string>emailAndPassword.email,
           <string>emailAndPassword.password
         );

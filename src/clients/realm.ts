@@ -1,36 +1,39 @@
 import axios, { AxiosResponse } from "axios";
-import Realm, { App } from "realm";
-import jwt from "jsonwebtoken";
+import Realm from "realm";
 
-export default class RegistryClient {
-  static async loginWithJWT(app: App): Promise<string> {
-    const realmClientAppId = process.env.REALM_CLIENT_APP_ID || "";
-    const signingKey = process.env.JWT_SIGNING_KEY || "";
+export class RealmAppSingleton {
+  static instance: Realm.App;
 
-    console.log("signing key:", signingKey);
-
-    // generate jwt token
-    const unixTime = Math.floor(Date.now() / 1000);
-    const payload = {
-      sub: realmClientAppId,
-      iat: unixTime,
-      aud: realmClientAppId,
-    };
-    const token = jwt.sign(payload, signingKey, {
-      algorithm: "HS256",
-      expiresIn: "7d",
-    });
-
-    const jwtCredentials = Realm.Credentials.jwt(token);
-    await app.logIn(jwtCredentials);
-
-    console.log("token:", token);
-    return token;
+  constructor() {
+    console.log("cannot re-instantiate singleton");
   }
 
-  static async getFunctionSource(app: App): Promise<AxiosResponse | undefined> {
+  public static get(): Realm.App {
+    if (!RealmAppSingleton.instance) {
+      const REALM_CLIENT_APP_ID = process.env.REALM_CLIENT_APP_ID || "";
+      const appConfig = {
+        id: REALM_CLIENT_APP_ID,
+        timeout: 10000,
+      };
+
+      RealmAppSingleton.instance = new Realm.App(appConfig);
+    }
+    return RealmAppSingleton.instance;
+  }
+}
+
+export class RegistryClient {
+  static async loginWithAPIKey(): Promise<string> {
+    const app = RealmAppSingleton.get();
+    const apiKey = process.env.REALM_API_KEY || "";
+    const jwtCredentials = Realm.Credentials.serverApiKey(apiKey);
+    await app.logIn(jwtCredentials);
+    return apiKey;
+  }
+
+  static async getFunctionSource(): Promise<AxiosResponse | undefined> {
     const realmGraphQLUrl = process.env.REALM_GQL_URL || "";
-    const jwtToken = await RegistryClient.loginWithJWT(app);
+    const apiKey = await RegistryClient.loginWithAPIKey();
 
     return await axios.post(
       realmGraphQLUrl,
@@ -48,7 +51,7 @@ export default class RegistryClient {
       },
       {
         headers: {
-          jwtTokenString: jwtToken,
+          apiKey,
         },
       }
     );
@@ -58,10 +61,10 @@ export default class RegistryClient {
 }
 
 export async function loginWithEmail(
-  app: App,
   email: string,
   password: string
 ): Promise<boolean> {
+  const app = RealmAppSingleton.get();
   try {
     const credentials = Realm.Credentials.emailPassword(email, password);
 
@@ -80,10 +83,10 @@ export async function loginWithEmail(
 }
 
 export async function registerWithEmail(
-  app: App,
   email: string,
   password: string
 ): Promise<boolean> {
+  const app = RealmAppSingleton.get();
   try {
     await app.emailPasswordAuth.registerUser({
       email,
@@ -106,7 +109,8 @@ export async function registerWithEmail(
   }
 }
 
-export async function logout(app: App): Promise<boolean> {
+export async function logout(): Promise<boolean> {
+  const app = RealmAppSingleton.get();
   let user = app.currentUser;
   if (user === null) {
     return false;

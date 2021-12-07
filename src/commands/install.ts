@@ -1,8 +1,7 @@
 import { Command, createCommand } from "commander";
-import RealmClient from "../clients/realm";
+import { RegistryClient } from "../clients/realm";
 
 import { ExitStatus, logDebugInfo, logExitStatus } from "./common";
-import { RealmApp } from "../index";
 
 export const createInstallCommand = (): Command => {
   const cmd = createCommand();
@@ -20,7 +19,7 @@ export const createInstallCommand = (): Command => {
           logDebugInfo(options, { funcName });
         }
 
-        const res = await RealmClient.getFunctionSource(RealmApp);
+        const res = await RegistryClient.getFunctionSource();
         console.log("res:", JSON.stringify(res?.data));
 
         logExitStatus(ExitStatus.Success);
