@@ -1,9 +1,9 @@
 const inquirer = require("inquirer");
 import Realm = require("realm");
 
-const REALM_APP_ID = "rfm-pzvlr";
+const realmClientAppId = process.env.REALM_CLIENT_APP_ID || "";
 const appConfig = {
-    id: REALM_APP_ID,
+    id: realmClientAppId,
     timeout: 10000,
 };
 
