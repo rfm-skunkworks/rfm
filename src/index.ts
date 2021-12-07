@@ -1,6 +1,5 @@
 import { Command } from "commander";
 import dotenv from "dotenv";
-import Realm from "realm";
 
 import { createInstallCommand } from "./commands/install";
 import { createSearchCommand } from "./commands/search";

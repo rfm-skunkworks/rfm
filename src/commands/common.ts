@@ -31,3 +31,16 @@ export const logExitStatus = (status: ExitStatus, error?: string) => {
       break;
   }
 };
+
+// stolen from here: https://github.com/tj/commander.js/issues/505#issuecomment-244988124
+export const withErrors = (command: (...args: any[]) => Promise<void>) => {
+  return async (...args: any[]) => {
+    try {
+      await command(...args);
+    } catch (e) {
+      const err = e as Error;
+      logExitStatus(ExitStatus.Failure, err.message);
+      process.exitCode = 1;
+    }
+  };
+};

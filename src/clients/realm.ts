@@ -28,33 +28,30 @@ export class RealmAppSingleton {
 }
 
 export class RegistryClient {
-  static async loginWithAPIKey(): Promise<string> {
-    const app = RealmAppSingleton.get();
+  static getAPIKey(): string {
     const apiKey = process.env.REALM_API_KEY || "";
-    const jwtCredentials = Realm.Credentials.serverApiKey(apiKey);
-    await app.logIn(jwtCredentials);
     return apiKey;
   }
 
   static async getFunction(name: string): Promise<RegistryFunction> {
     const realmGraphQLUrl = process.env.REALM_GQL_URL || "";
-    const apiKey = await RegistryClient.loginWithAPIKey();
+    const apiKey = RegistryClient.getAPIKey();
 
     const res = await axios.post<GraphQLPayload<WrappedRegistryFunction>>(
       realmGraphQLUrl,
       {
         query: `
-    {
-      function_registry(query: {name:"${name}"}) {
-        _id
-        name
-        raw
-        dependencies
-        downloads
-        tags
+      {
+        function_registry(query: {name:"${name}"}) {
+          _id
+          name
+          raw
+          dependencies
+          downloads
+          tags
+        }
       }
-    }
-    `,
+      `,
       },
       {
         headers: {
