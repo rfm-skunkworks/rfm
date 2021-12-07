@@ -1,4 +1,4 @@
-const prompt = require("prompt");
+import prompt from "prompt";
 import { RealmApp } from "../index";
 import { loginWithEmail, registerWithEmail } from "./realm";
 
@@ -37,26 +37,30 @@ const emailAndPasswordSchema = {
 export async function loginOrRegisterUserWithEmail() {
   prompt.start();
 
-  const registerOrLogin = await prompt.get(registerOrLoginSchema);
-  if (registerOrLogin === "register") {
-    let registered = false;
-    do {
-      const emailAndPassword = await prompt.get(emailAndPasswordSchema);
-      registered = await registerWithEmail(
-        RealmApp,
-        emailAndPassword.email,
-        emailAndPassword.password
-      );
-    } while (!registered);
-  } else {
-    let loggedIn = false;
-    do {
-      const emailAndPassword = await prompt.get(emailAndPasswordSchema);
-      loggedIn = await loginWithEmail(
-        RealmApp,
-        emailAndPassword.email,
-        emailAndPassword.password
-      );
-    } while (!loggedIn);
+  try {
+    const res = await prompt.get(registerOrLoginSchema);
+    if (res.registerOrLogin === "register") {
+      let registered = false;
+      do {
+        const emailAndPassword = await prompt.get(emailAndPasswordSchema);
+        registered = await registerWithEmail(
+          RealmApp,
+          <string>emailAndPassword.email,
+          <string>emailAndPassword.password
+        );
+      } while (!registered);
+    } else {
+      let loggedIn = false;
+      do {
+        const emailAndPassword = await prompt.get(emailAndPasswordSchema);
+        loggedIn = await loginWithEmail(
+          RealmApp,
+          <string>emailAndPassword.email,
+          <string>emailAndPassword.password
+        );
+      } while (!loggedIn);
+    }
+  } catch (err) {
+    console.log(err);
   }
 }
