@@ -1,4 +1,7 @@
 import { Command, createCommand } from "commander";
+import path from "path";
+import fs from "fs";
+import { fileNames, getRealmRootDir } from "../realm/appStructure";
 import { RegistryClient } from "../clients/realm";
 
 import { ExitStatus, logDebugInfo, logExitStatus } from "./common";
@@ -19,8 +22,25 @@ export const createInstallCommand = (): Command => {
           logDebugInfo(options, { funcName });
         }
 
-        const res = await RegistryClient.getFunctionSource();
-        console.log("res:", JSON.stringify(res?.data));
+        const appRootDir = await getRealmRootDir(5);
+        if (!appRootDir) {
+          throw "not in realm app";
+        }
+
+        const functionsDir = path.join(appRootDir, fileNames.dirFunctions);
+
+        const registryFunc = await RegistryClient.getFunction(funcName);
+        // TODO base64 decode the source
+        const { raw: functionSource, name: functionName } = registryFunc;
+
+        const newFunctionFile = path.join(functionsDir, `${functionName}.js`);
+        fs.writeFile(newFunctionFile, functionSource, {}, (err) => {
+          if (err) {
+            throw `failed to write function to file: ${err}`;
+          }
+
+          console.log(`wrote function to ${newFunctionFile}`);
+        });
 
         logExitStatus(ExitStatus.Success);
         return;
@@ -30,7 +50,6 @@ export const createInstallCommand = (): Command => {
         logExitStatus(ExitStatus.Failure, err.message);
         return;
       }
-      console.log("objechellot");
     });
 
   return cmd;

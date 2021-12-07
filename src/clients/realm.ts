@@ -1,4 +1,9 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
+import {
+  GraphQLPayload,
+  RegistryFunction,
+  WrappedRegistryFunction,
+} from "models/functionRegistry";
 import Realm from "realm";
 
 export class RealmAppSingleton {
@@ -31,20 +36,22 @@ export class RegistryClient {
     return apiKey;
   }
 
-  static async getFunctionSource(): Promise<AxiosResponse | undefined> {
+  static async getFunction(name: string): Promise<RegistryFunction> {
     const realmGraphQLUrl = process.env.REALM_GQL_URL || "";
     const apiKey = await RegistryClient.loginWithAPIKey();
 
-    return await axios.post(
+    const res = await axios.post<GraphQLPayload<WrappedRegistryFunction>>(
       realmGraphQLUrl,
       {
         query: `
     {
-      function_registries(query: {name:"foo"}) {
+      function_registry(query: {name:"${name}"}) {
         _id
         name
-        owner_id
         raw
+        dependencies
+        downloads
+        tags
       }
     }
     `,
@@ -55,6 +62,10 @@ export class RegistryClient {
         },
       }
     );
+
+    const axiosData = res.data;
+    const gqlData = axiosData.data;
+    return gqlData.function_registry;
   }
 
   static pushFunctionSource() {}
