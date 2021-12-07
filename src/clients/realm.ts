@@ -1,7 +1,6 @@
 import axios, { AxiosResponse } from "axios";
-import realm, { App } from "realm";
+import Realm, { App } from "realm";
 import jwt from "jsonwebtoken";
-import Realm from "realm";
 
 export default class RegistryClient {
   static async loginWithJWT(app: App): Promise<string> {
@@ -22,7 +21,7 @@ export default class RegistryClient {
       expiresIn: "7d",
     });
 
-    const jwtCredentials = realm.Credentials.jwt(token);
+    const jwtCredentials = Realm.Credentials.jwt(token);
     await app.logIn(jwtCredentials);
 
     console.log("token:", token);

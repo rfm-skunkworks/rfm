@@ -1,19 +1,13 @@
 import { Command, createCommand } from "commander";
+import { loginOrRegisterUserWithEmail } from "../clients/loginOrRegisterUser";
 export const createLoginCommand = (): Command => {
   const cmd = createCommand();
 
   cmd
     .name("login")
-    .description("Login test")
+    .description("login a user")
     .action(async () => {
-      // let registered = false;
-      // do {
-      //     registered = await register();
-      // } while (!registered);
-      // let loggedIn = false;
-      // do {
-      //     loggedIn = await logIn();
-      // } while (!loggedIn);
+      await loginOrRegisterUserWithEmail();
     });
 
   return cmd;
