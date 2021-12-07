@@ -1,21 +1,12 @@
 import { Command } from "commander";
 import dotenv from "dotenv";
-import Realm from "realm";
-
-// parse .env file and store the values in process.env
-dotenv.config();
-
-const REALM_CLIENT_APP_ID = process.env.REALM_CLIENT_APP_ID || "";
-const appConfig = {
-  id: REALM_CLIENT_APP_ID,
-  timeout: 10000,
-};
-
-export const RealmApp = new Realm.App(appConfig);
 
 import { createInstallCommand } from "./commands/install";
 import { createSearchCommand } from "./commands/search";
 import { createLoginCommand } from "./commands/test-login";
+
+// parse .env file and store the values in process.env
+dotenv.config();
 
 const program = new Command();
 program.version("0.1.0");
