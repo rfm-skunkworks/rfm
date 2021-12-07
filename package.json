@@ -130,7 +130,7 @@
   },
   "scripts": {
     "start": "ts-node src/index.ts",
-    "build": "tsc"
+    "build": "tsc && echo \"#!/usr/bin/env node\" | cat - bin/index.js > /tmp/out && mv /tmp/out bin/index.js"
   },
   "keywords": [],
   "bin": "bin/index.js",
