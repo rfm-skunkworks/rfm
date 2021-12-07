@@ -133,6 +133,7 @@
     "build": "tsc"
   },
   "keywords": [],
+  "bin": "bin/index.js",
   "author": "",
   "license": "ISC"
 }
