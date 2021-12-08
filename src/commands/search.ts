@@ -1,6 +1,6 @@
 import { Command, createCommand } from "commander";
 
-import { ExitStatus, logDebugInfo, logExitStatus, withErrors } from "./common";
+import { withErrors } from "./common";
 import axios, { AxiosResponse } from "axios";
 import { RegistryClient } from "../clients/realm";
 import chalk from "chalk";

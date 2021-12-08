@@ -1,10 +1,8 @@
 import { Command, createCommand } from "commander";
-import path from "path";
-import fs from "fs";
-import { fileNames, getRealmRootDir } from "../realm/appStructure";
+import { getRealmRootDir } from "../realm/appStructure";
 import { RegistryClient } from "../clients/realm";
 
-import { ExitStatus, logDebugInfo, logExitStatus, withErrors } from "./common";
+import { logDebugInfo, withErrors } from "./common";
 import chalk from "chalk";
 import { AddRegistryFunctionRequest } from "models/functionRegistry";
 
