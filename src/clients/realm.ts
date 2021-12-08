@@ -50,6 +50,7 @@ export class RegistryClient {
           downloads
           tags
           description
+          secrets
         }
       }
       `,
