@@ -39,13 +39,14 @@ async function installFunctionFromRegistry(
           functions = config.functions;
         }
       }
-      if (!functions[functionName]) {
-        functions[functionName] = {};
-        fs.writeFileSync(
-          rfmConfigPath,
-          JSON.stringify({ functions: functions }, null, 2)
-        );
-      }
+      functions[functionName] = { secrets: registryFunc.secrets || [] };
+      fs.writeFileSync(
+        rfmConfigPath,
+        JSON.stringify({ functions: functions }, null, 2)
+      );
+      console.log(
+        chalk.greenBright(`Saved function metadata to ${fileNames.rfmJSON}`)
+      );
     }
     return newFunctionFile;
   } catch (err) {
@@ -92,8 +93,8 @@ async function installFunctionsFromConfig() {
   // console.log(res.data);
 
   for (const [name, value] of Object.entries(functions)) {
-    if (value.values && !Array.isArray(value.values)) {
-      throw Error(`${name}.values must be an array`);
+    if (value.secrets && !Array.isArray(value.secrets)) {
+      throw Error(`${name}.secrets must be an array`);
     }
 
     const newFunctionFile = await installFunctionFromRegistry(name, false);
