@@ -13,6 +13,7 @@ export const createInstallCommand = (): Command => {
   cmd
     .name("install")
     .alias("add")
+    .alias("i")
     .description("Install realm function from registry")
     .argument("<function-name>", "realm function to install")
     .option("-d, --debug", "log debug information")
