@@ -1,7 +1,9 @@
 import axios from "axios";
 import {
+  AddRegistryFunctionRequest,
   GraphQLPayload,
   RegistryFunction,
+  WrappedPartialRegistryFunction,
   WrappedRegistryFunction,
   WrappedRegistryFunctions,
 } from "models/functionRegistry";
@@ -28,21 +30,104 @@ export class RealmAppSingleton {
   }
 }
 
+const _makeRealmGraphQLRequest = <T>(query: string) => {
+  const realmGraphQLUrl = process.env.REALM_GQL_URL || "";
+  const apiKey = RegistryClient.getAPIKey();
+
+  return axios.post<GraphQLPayload<T>>(
+    realmGraphQLUrl,
+    {
+      query,
+    },
+    {
+      headers: {
+        apiKey,
+      },
+    }
+  );
+};
+
 export class RegistryClient {
   static getAPIKey(): string {
     return process.env.REALM_API_KEY || "";
   }
 
   static async getFunction(name: string): Promise<RegistryFunction> {
+    const res = await _makeRealmGraphQLRequest<WrappedRegistryFunction>(`
+      {
+        function_registry(query: {name:"${name}"}) {
+          _id
+          name
+          raw
+          dependencies
+          downloads
+          tags
+        }
+      }
+    `);
+
+    const axiosData = res.data;
+    const gqlData = axiosData.data;
+    return gqlData.function_registry;
+  }
+
+  static async pushFunction({
+    name,
+    description,
+    tags,
+    // dependencies,
+    source,
+  }: // values,
+  AddRegistryFunctionRequest): Promise<string | undefined> {
+    // require at least 1 tag
+    const tagsStr = `"${tags.join('", "')}"`;
+
+    // convert js values arr to string
+    // let valuesStr = "";
+    // if (values.length > 0) {
+    //   valuesStr = `""`;
+    // }
+
+    // convert js deps arr to string
+    // let dependenciesStr = "";
+    // if (dependencies.length > 0) {
+    //   dependenciesStr = `""`;
+    // }
+
+    const res =
+      await _makeRealmGraphQLRequest<WrappedPartialRegistryFunction>(`mutation {
+  insertOneFunction_registry(data: {name:"${name}", description: "${description}", raw: "${source}", tags: [${tagsStr}], dependencies: [], values: [] }) {
+      _id
+    }
+    }`);
+
+    const axiosData = res.data;
+    const gqlData = axiosData.data;
+    const { _id } = gqlData.function_registry;
+    return _id;
+  }
+
+  static async searchFunctions(
+    name: string,
+    tags: Array<string>
+  ): Promise<Array<RegistryFunction>> {
     const realmGraphQLUrl = process.env.REALM_GQL_URL || "";
     const apiKey = RegistryClient.getAPIKey();
 
-    const res = await axios.post<GraphQLPayload<WrappedRegistryFunction>>(
+    const nameQuery = `{name:"${name}"}`;
+    const tagsQuery = `{tags_in: ["${tags.join('","')}"]}`;
+
+    const res = await axios.post<GraphQLPayload<WrappedRegistryFunctions>>(
       realmGraphQLUrl,
       {
         query: `
       {
-        function_registry(query: {name:"${name}"}) {
+        function_registries(query: {
+         OR: [
+          ${name !== "" ? nameQuery : ""},
+          ${tags.length !== 0 ? tagsQuery : ""}
+          ]
+        }) {
           _id
           name
           raw
@@ -62,7 +147,10 @@ export class RegistryClient {
 
     const axiosData = res.data;
     const gqlData = axiosData.data;
-    return gqlData.function_registry;
+    if (!gqlData) {
+      return [];
+    }
+    return gqlData.function_registries;
   }
 
   static async searchFunctions(
