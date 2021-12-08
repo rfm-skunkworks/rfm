@@ -6,6 +6,14 @@ export interface WrappedRegistryFunction {
   function_registry: RegistryFunction;
 }
 
+export interface WrappedPartialRegistryFunction {
+  function_registry: Partial<RegistryFunction>;
+}
+
+export interface WrappedRegistryFunctions {
+  function_registries: Array<RegistryFunction>;
+}
+
 export interface RegistryFunction {
   _id: string;
   name: string;
@@ -14,4 +22,20 @@ export interface RegistryFunction {
   downloads: string[];
   dependencies: string[];
   raw: string;
+}
+
+export interface Value {
+  name: string;
+  description: string;
+  value: string;
+}
+
+export interface AddRegistryFunctionRequest {
+  name: string;
+  description: string;
+  tags: string[];
+  ownerId: string;
+  dependencies: string[];
+  source: string;
+  values: Value[];
 }
