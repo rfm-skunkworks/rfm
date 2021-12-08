@@ -25,18 +25,14 @@ export interface RegistryFunction {
   raw: string;
 }
 
-export interface ValueDescription {
-  name: string;
-  description: string;
+export interface RFMConfig {
+  functions: RFMFunctions;
 }
-export interface AddRegistryFunctionRequestVariables {
-  description: string;
-  source: string;
-  dependencies: string[];
-  tags: string[];
-  downloads: string[];
-  name: string;
-  ownerId: string;
-  ownerEmail: string;
-  values: ValueDescription[];
+
+export interface RFMFunctions {
+  [name: string]: FunctionConfig;
+}
+
+export interface FunctionConfig {
+  values?: string[];
 }
