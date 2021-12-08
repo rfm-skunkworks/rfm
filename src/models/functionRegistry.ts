@@ -6,8 +6,8 @@ export interface WrappedRegistryFunction {
   function_registry: RegistryFunction;
 }
 
-export interface WrappedPartialRegistryFunction {
-  function_registry: Partial<RegistryFunction>;
+export interface WrappedInsertOneRegistryFunction {
+  insertOneFunction_registry: Partial<RegistryFunction>;
 }
 
 export interface WrappedRegistryFunctions {

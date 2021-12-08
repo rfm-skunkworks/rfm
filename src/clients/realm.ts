@@ -3,7 +3,7 @@ import {
   AddRegistryFunctionRequest,
   GraphQLPayload,
   RegistryFunction,
-  WrappedPartialRegistryFunction,
+  WrappedInsertOneRegistryFunction,
   WrappedRegistryFunction,
   WrappedRegistryFunctions,
 } from "models/functionRegistry";
@@ -95,15 +95,15 @@ export class RegistryClient {
     // }
 
     const res =
-      await _makeRealmGraphQLRequest<WrappedPartialRegistryFunction>(`mutation {
-  insertOneFunction_registry(data: {name:"${name}", description: "${description}", raw: "${source}", tags: [${tagsStr}], dependencies: [], values: [] }) {
+      await _makeRealmGraphQLRequest<WrappedInsertOneRegistryFunction>(`mutation {
+  insertOneFunction_registry(data: {name:"${name}", description: "${description}", raw: "${source}", tags: [${tagsStr}] }) {
       _id
     }
     }`);
 
     const axiosData = res.data;
     const gqlData = axiosData.data;
-    const { _id } = gqlData.function_registry;
+    const { _id } = gqlData.insertOneFunction_registry;
     return _id;
   }
 
@@ -152,54 +152,6 @@ export class RegistryClient {
     }
     return gqlData.function_registries;
   }
-
-  static async searchFunctions(
-    name: string,
-    tags: Array<string>
-  ): Promise<Array<RegistryFunction>> {
-    const realmGraphQLUrl = process.env.REALM_GQL_URL || "";
-    const apiKey = RegistryClient.getAPIKey();
-
-    const nameQuery = `{name:"${name}"}`;
-    const tagsQuery = `{tags_in: ["${tags.join('","')}"]}`;
-
-    const res = await axios.post<GraphQLPayload<WrappedRegistryFunctions>>(
-      realmGraphQLUrl,
-      {
-        query: `
-      {
-        function_registries(query: {
-         OR: [
-          ${name !== "" ? nameQuery : ""},
-          ${tags.length !== 0 ? tagsQuery : ""}
-          ]
-        }) {
-          _id
-          name
-          raw
-          dependencies
-          downloads
-          tags
-        }
-      }
-      `,
-      },
-      {
-        headers: {
-          apiKey,
-        },
-      }
-    );
-
-    const axiosData = res.data;
-    const gqlData = axiosData.data;
-    if (!gqlData) {
-      return [];
-    }
-    return gqlData.function_registries;
-  }
-
-  static pushFunctionSource() {}
 }
 
 export async function loginWithEmail(

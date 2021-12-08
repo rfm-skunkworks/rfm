@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import dotenv from "dotenv";
 
+import { createPushCommand } from "./commands/push";
 import { createInstallCommand } from "./commands/install";
 import { createSearchCommand } from "./commands/search";
 import { createLoginCommand } from "./commands/test-login";
@@ -12,6 +13,7 @@ const program = new Command();
 program.version("0.1.0");
 
 program.addCommand(createInstallCommand());
+program.addCommand(createPushCommand());
 program.addCommand(createSearchCommand());
 program.addCommand(createLoginCommand());
 

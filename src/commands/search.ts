@@ -1,8 +1,7 @@
 import { Command, createCommand } from "commander";
 
-import { ExitStatus, logDebugInfo, logExitStatus, withErrors } from "./common";
-import axios, { AxiosResponse } from "axios";
-import { RegistryClient } from "../clients/realm";
+import { withErrors } from "./common";
+import { RegistryClient } from "@clients/realm";
 import chalk from "chalk";
 
 function parseCommaSeparatedList(value: string, dummyPrevious: any) {
@@ -15,23 +14,6 @@ function parseCommaSeparatedList(value: string, dummyPrevious: any) {
 
 function parseName(value: string, dummyPrevious: any) {
   return value.trim();
-}
-
-function getFunctionSource(): Promise<AxiosResponse> {
-  const realmGraphQLUrl = process.env.REALM_GQL_URL || "";
-  const res = axios.post(realmGraphQLUrl, {
-    query: `
-    {
-      function_registries(query: {name:"foo"}) {
-        _id
-        name
-        owner_id
-        raw
-      }
-    }
-    `,
-  });
-  return res;
 }
 
 export const createSearchCommand = (): Command => {
