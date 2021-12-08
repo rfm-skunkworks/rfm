@@ -6,6 +6,7 @@ import path from "path";
 export const fileNames = {
   fileRealmConfigJSON: "realm_config.json",
   fileConfigJSON: "config.json",
+  rfmJSON: "rfm.json",
 
   dirFunctions: "functions",
 };

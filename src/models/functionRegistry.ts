@@ -20,3 +20,15 @@ export interface RegistryFunction {
   dependencies: string[];
   raw: string;
 }
+
+export interface RFMConfig {
+  functions: RFMFunctions;
+}
+
+export interface RFMFunctions {
+  [name: string]: FunctionConfig;
+}
+
+export interface FunctionConfig {
+  values?: string[];
+}
