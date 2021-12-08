@@ -13,6 +13,7 @@ export interface WrappedRegistryFunctions {
 export interface RegistryFunction {
   _id: string;
   name: string;
+  description: string;
   tags: string[];
   ownerId: string;
   downloads: string[];

@@ -60,15 +60,13 @@ export const createSearchCommand = (): Command => {
         if (res.length === 0) {
           console.log(chalk.redBright("No functions found"));
         } else {
-          let names: Array<string> = [];
-          res.forEach((func) => {
-            names.push(func.name);
+          console.log(chalk.greenBright("Found the following functions: \n"));
+          res.forEach((func, idx) => {
+            process.stdout.write(chalk.gray(`${idx}. `));
+            console.log(chalk.cyanBright(` ${func.name}:`));
+            console.log(chalk.cyanBright(`\t${func.description}`));
+            console.log();
           });
-          console.log(
-            chalk.greenBright(
-              `Found the following functions: ${names.join(", ")}`
-            )
-          );
         }
       })
     );

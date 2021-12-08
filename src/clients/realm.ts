@@ -49,6 +49,7 @@ export class RegistryClient {
           dependencies
           downloads
           tags
+          description
         }
       }
       `,
@@ -92,6 +93,7 @@ export class RegistryClient {
           dependencies
           downloads
           tags
+          description
         }
       }
       `,
