@@ -1,6 +1,7 @@
-import { loginWithEmail, registerWithEmail } from "@clients/realm";
 import { Command, createCommand } from "commander";
 import prompt from "prompt";
+
+import { loginWithEmail, registerWithEmail } from "../clients/realm";
 
 const registerOrLoginSchema = {
   properties: {

@@ -1,8 +1,8 @@
 import { Command, createCommand } from "commander";
+import chalk from "chalk";
 
 import { withErrors } from "./common";
-import { RegistryClient } from "@clients/realm";
-import chalk from "chalk";
+import { RegistryClient } from "../clients/realm";
 
 function parseCommaSeparatedList(value: string, dummyPrevious: any) {
   let tags = value.split(",");

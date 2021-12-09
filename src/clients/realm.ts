@@ -1,6 +1,6 @@
 import axios from "axios";
 import {
-  AddRegistryFunctionRequest,
+  AddRegistryFunctionRequestVariables,
   GraphQLPayload,
   RegistryFunction,
   WrappedInsertOneRegistryFunction,
@@ -30,7 +30,10 @@ export class RealmAppSingleton {
   }
 }
 
-const _makeRealmGraphQLRequest = <T>(query: string) => {
+const _makeRealmGraphQLRequest = <T>(
+  query: string,
+  variables?: Record<string, any>
+) => {
   const realmGraphQLUrl = process.env.REALM_GQL_URL || "";
   const apiKey = RegistryClient.getAPIKey();
 
@@ -38,6 +41,7 @@ const _makeRealmGraphQLRequest = <T>(query: string) => {
     realmGraphQLUrl,
     {
       query,
+      variables,
     },
     {
       headers: {
@@ -71,35 +75,38 @@ export class RegistryClient {
     return gqlData.function_registry;
   }
 
-  static async pushFunction({
-    name,
-    description,
-    tags,
-    // dependencies,
-    source,
-  }: // values,
-  AddRegistryFunctionRequest): Promise<string | undefined> {
-    // require at least 1 tag
-    const tagsStr = `"${tags.join('", "')}"`;
-
-    // convert js values arr to string
-    // let valuesStr = "";
-    // if (values.length > 0) {
-    //   valuesStr = `""`;
-    // }
-
-    // convert js deps arr to string
-    // let dependenciesStr = "";
-    // if (dependencies.length > 0) {
-    //   dependenciesStr = `""`;
-    // }
-
+  static async pushFunction(
+    variables: AddRegistryFunctionRequestVariables
+  ): Promise<string | undefined> {
     const res =
-      await _makeRealmGraphQLRequest<WrappedInsertOneRegistryFunction>(`mutation {
-  insertOneFunction_registry(data: {name:"${name}", description: "${description}", raw: "${source}", tags: [${tagsStr}] }) {
-      _id
-    }
-    }`);
+      await _makeRealmGraphQLRequest<WrappedInsertOneRegistryFunction>(
+        `mutation InsertOneFunctionMutation(
+          $name: String!,
+          $description: String!,
+          $source: String!,
+          $ownerId: ObjectId!,
+          $ownerEmail: String!,
+          $tags: [String]!,
+          $dependencies: [String]!
+          $downloads: [String]!
+          $values: [Function_registryValueInsertInput]!,
+        ) {
+          insertOneFunction_registry(data: {
+            name: $name,
+            description: $description,
+            raw: $source,
+            owner_id: $ownerId,
+            owner_email: $ownerEmail,
+            tags: $tags,
+            dependencies: $dependencies,
+            values: $values,
+            downloads: $downloads,
+          }) {
+            _id
+          }
+        }`,
+        variables
+      );
 
     const axiosData = res.data;
     const gqlData = axiosData.data;

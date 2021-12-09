@@ -24,18 +24,18 @@ export interface RegistryFunction {
   raw: string;
 }
 
-export interface Value {
+export interface ValueDescription {
   name: string;
   description: string;
-  value: string;
 }
-
-export interface AddRegistryFunctionRequest {
-  name: string;
+export interface AddRegistryFunctionRequestVariables {
   description: string;
-  tags: string[];
-  ownerId: string;
-  dependencies: string[];
   source: string;
-  values: Value[];
+  dependencies: string[];
+  tags: string[];
+  downloads: string[];
+  name: string;
+  ownerId: string;
+  ownerEmail: string;
+  values: ValueDescription[];
 }
