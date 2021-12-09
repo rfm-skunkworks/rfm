@@ -1,12 +1,11 @@
 import { Command, createCommand } from "commander";
-import { getRealmRootDir } from "../realm/appStructure";
-import { RegistryClient } from "../clients/realm";
+import { RegistryClient } from "@clients/realm";
 
 import { logDebugInfo, withErrors } from "./common";
 import chalk from "chalk";
 import { AddRegistryFunctionRequest } from "models/functionRegistry";
 
-export const createInstallCommand = (): Command => {
+export const createPushCommand = (): Command => {
   const cmd = createCommand();
 
   cmd
@@ -28,21 +27,19 @@ export const createInstallCommand = (): Command => {
           logDebugInfo(options, { path });
         }
 
-        const appRootDir = await getRealmRootDir(5);
-        if (!appRootDir) {
-          throw Error("not in realm app");
-        }
-
         const req: AddRegistryFunctionRequest = {
           name: `test-${path}`,
           description: "test push function",
-          tags: [],
+          tags: [options.tags],
           ownerId: "",
           dependencies: [],
           source: "",
           values: [],
         };
         const res = await RegistryClient.pushFunction(req);
+        if (res) {
+          console.log(chalk.green(`Pushed function at "${path}" to registry`));
+        }
         return;
       })
     );
