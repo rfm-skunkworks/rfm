@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import { createPushCommand } from "./commands/push";
 import { createInstallCommand } from "./commands/install";
 import { createSearchCommand } from "./commands/search";
-import { createLoginCommand } from "./commands/test-login";
+import { createLoginCommand } from "./commands/login";
 
 // parse .env file and store the values in process.env
 dotenv.config();
