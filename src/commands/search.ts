@@ -46,9 +46,12 @@ export const createSearchCommand = (): Command => {
           res.forEach((func, idx) => {
             process.stdout.write(chalk.gray(`${idx}. `));
             console.log(chalk.cyanBright(` ${func.name}:`));
-            console.log(chalk.cyanBright(`\t${func.description}`));
+            console.log(chalk.whiteBright(`\t${func.description}`));
             console.log();
           });
+          console.log(
+            chalk.greenBright("Install a function using rfm i <function name>")
+          );
         }
       })
     );

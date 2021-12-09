@@ -74,7 +74,7 @@ export class RegistryClient {
 
     const axiosData = res.data;
     const gqlData = axiosData.data;
-    return gqlData.function_registry;
+    return gqlData.GetAndUpdateFunction;
   }
 
   static async pushFunction(
