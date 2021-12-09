@@ -41,8 +41,8 @@ export class RegistryClient {
       realmGraphQLUrl,
       {
         query: `
-      {
-        function_registry(query: {name:"${name}"}) {
+      mutation {
+        GetAndUpdateFunction(input: {name:"${name}"}) {
           _id
           name
           raw
@@ -64,7 +64,7 @@ export class RegistryClient {
 
     const axiosData = res.data;
     const gqlData = axiosData.data;
-    return gqlData.function_registry;
+    return gqlData.GetAndUpdateFunction;
   }
 
   static async searchFunctions(

@@ -3,7 +3,7 @@ export interface GraphQLPayload<T> {
 }
 
 export interface WrappedRegistryFunction {
-  function_registry: RegistryFunction;
+  GetAndUpdateFunction: RegistryFunction;
 }
 
 export interface WrappedRegistryFunctions {

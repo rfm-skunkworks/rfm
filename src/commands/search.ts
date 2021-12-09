@@ -17,23 +17,6 @@ function parseName(value: string, dummyPrevious: any) {
   return value.trim();
 }
 
-function getFunctionSource(): Promise<AxiosResponse> {
-  const realmGraphQLUrl = process.env.REALM_GQL_URL || "";
-  const res = axios.post(realmGraphQLUrl, {
-    query: `
-    {
-      function_registries(query: {name:"foo"}) {
-        _id
-        name
-        owner_id
-        raw
-      }
-    }
-    `,
-  });
-  return res;
-}
-
 export const createSearchCommand = (): Command => {
   const cmd = createCommand();
 
@@ -64,9 +47,12 @@ export const createSearchCommand = (): Command => {
           res.forEach((func, idx) => {
             process.stdout.write(chalk.gray(`${idx}. `));
             console.log(chalk.cyanBright(` ${func.name}:`));
-            console.log(chalk.cyanBright(`\t${func.description}`));
+            console.log(chalk.whiteBright(`\t${func.description}`));
             console.log();
           });
+          console.log(
+            chalk.greenBright("Install a function using rfm i <function name>")
+          );
         }
       })
     );
