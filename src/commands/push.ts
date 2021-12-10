@@ -2,7 +2,7 @@ import { Command, createCommand } from "commander";
 import prompt, { RevalidatorSchema } from "prompt";
 import chalk from "chalk";
 
-import path from "path";
+import { basename } from "path";
 import { readFileSync } from "fs";
 
 import { RealmAppSingleton, RegistryClient } from "../clients/realm";
@@ -95,7 +95,7 @@ interface FunctionFileContent {
   source: string;
 }
 const getFunctionFileContents = (filepath: string): FunctionFileContent => {
-  const fileNameTokens = path.basename(filepath).split(".");
+  const fileNameTokens = basename(filepath).split(".");
 
   if (fileNameTokens.length < 2) {
     return {
