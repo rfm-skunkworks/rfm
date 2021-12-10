@@ -6,8 +6,8 @@ import fs from "fs";
 
 import { fileNames, getRealmRootDir } from "../realm/appStructure";
 import { RegistryClient } from "../clients/realm";
-import { ExitStatus, logDebugInfo, logExitStatus, withErrors } from "./common";
 import { RFMFunctions } from "../models/functionRegistry";
+import { logDebugInfo, withErrors } from "./common";
 
 async function installFunctionFromRegistry(
   funcName: string,
@@ -129,7 +129,6 @@ export const createInstallCommand = (): Command => {
           console.log(
             chalk.greenBright(`Wrote function to ${newFunctionFile}`)
           );
-          logExitStatus(ExitStatus.Success);
         } else {
           await installFunctionsFromConfig();
         }

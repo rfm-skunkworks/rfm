@@ -9,6 +9,7 @@ import {
   GQLDeleteOneFunctionPayload,
 } from "models/functionRegistry";
 import Realm from "realm";
+import chalk from "chalk";
 
 export class RealmAppSingleton {
   static instance: Realm.App;
@@ -219,6 +220,28 @@ export class RegistryClient {
     }
     return gqlData.deleteOneFunction_registry;
   }
+
+  static async findFunctionNames(): Promise<Set<string>> {
+    const res = await _makeRealmGraphQLRequest<GQLFindFunctionsPayload>(
+      `
+      query {
+          function_registries(query: {}) {
+            name
+          }
+      }
+      `
+    );
+    const axiosData = res.data;
+    const gqlData = axiosData.data;
+    if (!gqlData) {
+      return new Set();
+    }
+    let names: Set<string> = new Set();
+    gqlData.function_registries.forEach((func) => {
+      names.add(func.name);
+    });
+    return names;
+  }
 }
 
 export async function loginWithEmail(
@@ -231,14 +254,14 @@ export async function loginWithEmail(
 
     const user = await app.logIn(credentials);
     if (user) {
-      console.log("You have successfully logged in");
+      console.log(chalk.greenBright("You have successfully logged in"));
       return true;
     } else {
-      console.log("There was an error logging you in");
+      console.log(chalk.redBright("There was an error logging you in"));
       return false;
     }
   } catch (err) {
-    console.log(err);
+    console.log(chalk.redBright(`Error: ${err}`));
     return false;
   }
 }
@@ -257,15 +280,19 @@ export async function registerWithEmail(
     const user = await app.logIn(credentials);
     if (user) {
       console.log(
-        "You have successfully created a new Realm user and are now logged in."
+        chalk.greenBright(
+          "You have successfully created a new Realm user and are now logged in"
+        )
       );
       return true;
     } else {
-      console.log("There was an error registering the new user account.");
+      console.log(
+        chalk.redBright("There was an error registering the new user account")
+      );
       return false;
     }
   } catch (err) {
-    console.log(err);
+    console.log(chalk.redBright(`Error: ${err}`));
     return false;
   }
 }

@@ -1,12 +1,14 @@
 import { Command, createCommand } from "commander";
 import prompt from "prompt";
+import colors from "colors/safe";
+prompt.message = "";
 
 import { loginWithEmail, registerWithEmail } from "../clients/realm";
 
 const registerOrLoginSchema = {
   properties: {
     registerOrLogin: {
-      description: "choose to either 'register' or 'login'",
+      description: colors.cyan("Choose to either 'register' or 'login'"),
       pattern: /\b(register)\b|\b(login)\b/,
       message: "valid options are 'register' and 'login'",
       required: true,
@@ -17,14 +19,14 @@ const registerOrLoginSchema = {
 const emailAndPasswordSchema = {
   properties: {
     email: {
-      description: "enter username",
+      description: colors.cyan("Enter username"),
       pattern:
         /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/,
       message: "must be a valid email",
       required: true,
     },
     password: {
-      description: "enter password",
+      description: colors.cyan("Enter password"),
       replace: "*",
       pattern: /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z]).{8,}$/,
       message:
@@ -65,6 +67,7 @@ export const createLoginCommand = (): Command => {
             );
           } while (!loggedIn);
         }
+        process.exit(0);
       } catch (err) {
         console.log(err);
       }
