@@ -10,6 +10,10 @@ export interface GQLInsertOneFunctionPayload {
   insertOneFunction_registry: Partial<RegistryFunction>;
 }
 
+export interface GQLDeleteOneFunctionPayload {
+  deleteOneFunction_registry: Partial<RegistryFunction>;
+}
+
 export interface GQLFindFunctionsPayload {
   function_registries: Array<RegistryFunction>;
 }

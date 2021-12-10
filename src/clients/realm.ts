@@ -6,6 +6,7 @@ import {
   RegistryFunction,
   GQLInsertOneFunctionPayload,
   GQLFindFunctionsPayload,
+  GQLDeleteOneFunctionPayload,
 } from "models/functionRegistry";
 import Realm from "realm";
 
@@ -121,17 +122,40 @@ export class RegistryClient {
     return _id;
   }
 
+  static async getOwnedFunctions(
+    ownerId: string
+  ): Promise<Array<RegistryFunction>> {
+    const res = await _makeRealmGraphQLRequest<GQLFindFunctionsPayload>(
+      `
+      query SearchFunctionsByOwner(
+        $ownerId: ObjectId!
+      ) {
+        function_registries(query: {
+          owner_id: $ownerId
+        }) {
+          _id
+          name
+          description
+          downloads
+        }
+      }
+      `,
+      { ownerId }
+    );
+    const axiosData = res.data;
+    const gqlData = axiosData.data;
+    if (!gqlData) {
+      return [];
+    }
+    return gqlData.function_registries;
+  }
+
   static async searchFunctions(
     name: string,
     tags: Array<string>
   ): Promise<Array<RegistryFunction>> {
-    const realmGraphQLUrl = process.env.REALM_GQL_URL || "";
-    const apiKey = RegistryClient.getAPIKey();
-
-    const res = await axios.post<GraphQLPayload<GQLFindFunctionsPayload>>(
-      realmGraphQLUrl,
-      {
-        query: `
+    const res = await _makeRealmGraphQLRequest<GQLFindFunctionsPayload>(
+      `
       query SearchFunctions(
         $name: String!,
         $tags: [String]!
@@ -152,21 +176,48 @@ export class RegistryClient {
         }
       }
       `,
-        variables: { name, tags },
-      },
-      {
-        headers: {
-          apiKey,
-        },
-      }
+      { name, tags }
     );
-
     const axiosData = res.data;
     const gqlData = axiosData.data;
     if (!gqlData) {
       return [];
     }
     return gqlData.function_registries;
+  }
+
+  static async deleteFunction(ownerId: string, functionName: string) {
+    const res = await _makeRealmGraphQLRequest<GQLDeleteOneFunctionPayload>(
+      `
+      mutation DeleteFunction(
+        $ownerId: ObjectId!,
+        $functionName: String!
+      ) {
+        deleteOneFunction_registry(query: {
+          owner_id: $ownerId,
+          name: $functionName 
+        }) {
+          _id
+          name
+          description
+          dependencies
+          values {
+            name
+            description
+          }
+          tags
+          raw
+        }
+      }
+      `,
+      { functionName, ownerId }
+    );
+    const axiosData = res.data;
+    const gqlData = axiosData.data;
+    if (!gqlData) {
+      return {};
+    }
+    return gqlData.deleteOneFunction_registry;
   }
 }
 
