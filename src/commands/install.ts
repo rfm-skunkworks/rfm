@@ -9,6 +9,10 @@ import { RegistryClient } from "../clients/realm";
 import { RFMFunctions } from "../models/functionRegistry";
 import { logDebugInfo, withErrors } from "./common";
 
+import prompt, { RevalidatorSchema } from "prompt";
+import colors from "colors/safe";
+prompt.message = "";
+
 const realmValuesPath = "/values";
 
 async function installFunctionFromRegistry(
@@ -36,10 +40,19 @@ async function installFunctionFromRegistry(
     if (registryFunc.values.length > 0) {
       const valuesPath = path.join(appRootDir, realmValuesPath);
       let wroteValue = false;
-      registryFunc.values.forEach((value) => {
+      prompt.start();
+      for (const value of registryFunc.values) {
         const valueJSONPath = path.join(valuesPath, `${value.name}.json`);
         if (!fs.existsSync(valueJSONPath)) {
-          fs.writeFileSync(valueJSONPath, JSON.stringify({}));
+          console.log(chalk.yellowBright(`Writing "${value.name}"`));
+          const val = await prompt.get(valueSchema);
+          fs.writeFileSync(
+            valueJSONPath,
+            JSON.stringify({
+              name: value.name,
+              value: val.value,
+            })
+          );
           wroteValue = true;
           console.log(
             chalk.yellowBright(
@@ -47,10 +60,10 @@ async function installFunctionFromRegistry(
             )
           );
           console.log(
-            chalk.yellowBright(`    Description: ${value.description}`)
+            chalk.yellowBright(`    Description: ${value.description}\n`)
           );
         }
-      });
+      }
       if (wroteValue) {
         console.log(
           chalk.yellowBright(
@@ -155,4 +168,17 @@ export const createInstallCommand = (): Command => {
     );
 
   return cmd;
+};
+
+const valueSchema: {
+  properties: Record<string, RevalidatorSchema>;
+} = {
+  properties: {
+    value: {
+      description: colors.cyan("Enter a value"),
+      message: "must enter a value",
+      required: true,
+      type: "string",
+    },
+  },
 };
