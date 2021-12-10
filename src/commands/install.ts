@@ -127,7 +127,6 @@ export const createInstallCommand = (): Command => {
 
   cmd
     .name("install")
-    .alias("add")
     .alias("i")
     .description("Install realm function")
     .argument("[function-name]", "realm function to install")
