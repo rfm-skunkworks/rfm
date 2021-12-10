@@ -22,7 +22,7 @@ export interface RegistryFunction {
   ownerId: string;
   downloads: string[];
   dependencies: string[];
-  secrets: string[];
+  values: ValueDescription[];
   raw: string;
 }
 
@@ -52,5 +52,5 @@ export interface RFMFunctions {
 }
 
 export interface FunctionConfig {
-  secrets?: string[];
+  values?: ValueDescription[];
 }
