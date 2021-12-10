@@ -2,15 +2,15 @@ export interface GraphQLPayload<T> {
   data: T;
 }
 
-export interface WrappedRegistryFunction {
+export interface GQLGetAndUpdateFunctionPayload {
   GetAndUpdateFunction: RegistryFunction;
 }
 
-export interface WrappedInsertOneRegistryFunction {
+export interface GQLInsertOneFunctionPayload {
   insertOneFunction_registry: Partial<RegistryFunction>;
 }
 
-export interface WrappedRegistryFunctions {
+export interface GQLFindFunctionsPayload {
   function_registries: Array<RegistryFunction>;
 }
 
@@ -24,6 +24,23 @@ export interface RegistryFunction {
   dependencies: string[];
   secrets: string[];
   raw: string;
+}
+
+export interface ValueDescription {
+  name: string;
+  description: string;
+}
+
+export interface AddRegistryFunctionRequestVariables {
+  name: string;
+  description: string;
+  tags: string[];
+  ownerEmail: string;
+  ownerId: string;
+  downloads: string[];
+  dependencies: string[];
+  source: string;
+  values: ValueDescription[];
 }
 
 export interface RFMConfig {

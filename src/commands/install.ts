@@ -1,12 +1,12 @@
 import { Command, createCommand } from "commander";
+import chalk from "chalk";
+
 import path from "path";
 import fs from "fs";
+
 import { fileNames, getRealmRootDir } from "../realm/appStructure";
 import { RegistryClient } from "../clients/realm";
-
 import { ExitStatus, logDebugInfo, logExitStatus, withErrors } from "./common";
-import chalk from "chalk";
-import axios from "axios";
 import { RFMFunctions } from "../models/functionRegistry";
 
 async function installFunctionFromRegistry(
@@ -20,7 +20,7 @@ async function installFunctionFromRegistry(
 
   const functionsDir = path.join(appRootDir, fileNames.dirFunctions);
 
-  const registryFunc = await RegistryClient.getFunction(funcName);
+  const registryFunc = await RegistryClient.downloadFunction(funcName);
   if (!registryFunc) {
     throw Error(`function "${funcName}" not found in registry`);
   }

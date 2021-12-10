@@ -48,13 +48,11 @@ export const createPushCommand = (): Command => {
           );
         }
 
-        // read specified function file
         const { source, name } = getFunctionFileContents(path);
 
         prompt.start();
 
         const descriptionInput = await prompt.get(functionDescriptionPrompt);
-
         const shouldPromptValuesOrDeps = await prompt.get(
           hasValueOrBooleanPromptSchema
         );
@@ -84,7 +82,6 @@ export const createPushCommand = (): Command => {
         if (res) {
           console.log(chalk.green(`Pushed function at "${path}" to registry`));
         }
-        return;
       })
     );
 
@@ -152,15 +149,19 @@ const hasValueOrBooleanPromptSchema: {
   },
 };
 
-const valuePromptSchema = {
+const valueNamePromptSchema = {
   properties: {
     name: {
-      description:
-        "enter value's name (press enter if no more values are needed)",
-      pattern: /(^([a-zA-Z\s\-]|[0-9])+$)|\n/,
+      description: "enter value's name (enter 'n' if done)",
+      pattern: /^([a-zA-Z\s\-]|[0-9]\n)*$/,
       message: "name must contain only alphanumeric characters or '-'",
       required: true,
     },
+  },
+};
+
+const valueDescriptionPromptSchema = {
+  properties: {
     description: {
       description:
         "enter a description of what this value does in the function",
@@ -176,11 +177,12 @@ const promptValues = async (): Promise<ValueDescription[]> => {
   let out: ValueDescription[] = [];
 
   while (true) {
-    const { name, description } = await prompt.get(valuePromptSchema);
-    if (name === "") {
+    const { name } = await prompt.get(valueNamePromptSchema);
+    if (name === "n") {
       break;
     }
-    out.push({ name: <string>description, description: <string>description });
+    const { description } = await prompt.get(valueDescriptionPromptSchema);
+    out.push({ name: <string>name, description: <string>description });
   }
 
   return out;

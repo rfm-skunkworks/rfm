@@ -1,11 +1,11 @@
 import axios from "axios";
 import {
   AddRegistryFunctionRequestVariables,
+  GQLGetAndUpdateFunctionPayload,
   GraphQLPayload,
   RegistryFunction,
-  WrappedInsertOneRegistryFunction,
-  WrappedRegistryFunction,
-  WrappedRegistryFunctions,
+  GQLInsertOneFunctionPayload,
+  GQLFindFunctionsPayload,
 } from "models/functionRegistry";
 import Realm from "realm";
 
@@ -56,10 +56,11 @@ export class RegistryClient {
     return process.env.REALM_API_KEY || "";
   }
 
-  static async getFunction(name: string): Promise<RegistryFunction> {
-    const res = await _makeRealmGraphQLRequest<WrappedRegistryFunction>(`
-      {
-        function_registry(query: {name:"${name}"}) {
+  static async downloadFunction(name: string): Promise<RegistryFunction> {
+    const res = await _makeRealmGraphQLRequest<GQLGetAndUpdateFunctionPayload>(
+      `
+    mutation GetAndUpdateFunction($name: String!) {
+      GetAndUpdateFunction(input: {name: $name}) {
           _id
           name
           raw
@@ -67,10 +68,15 @@ export class RegistryClient {
           downloads
           tags
           description
-          secrets
+          values {
+            name
+            description
+          }
         }
       }
-    `);
+    `,
+      { name }
+    );
 
     const axiosData = res.data;
     const gqlData = axiosData.data;
@@ -80,9 +86,8 @@ export class RegistryClient {
   static async pushFunction(
     variables: AddRegistryFunctionRequestVariables
   ): Promise<string | undefined> {
-    const res =
-      await _makeRealmGraphQLRequest<WrappedInsertOneRegistryFunction>(
-        `mutation InsertOneFunctionMutation(
+    const res = await _makeRealmGraphQLRequest<GQLInsertOneFunctionPayload>(
+      `mutation InsertOneFunctionMutation(
           $name: String!,
           $description: String!,
           $source: String!,
@@ -107,8 +112,8 @@ export class RegistryClient {
             _id
           }
         }`,
-        variables
-      );
+      variables
+    );
 
     const axiosData = res.data;
     const gqlData = axiosData.data;
@@ -123,18 +128,18 @@ export class RegistryClient {
     const realmGraphQLUrl = process.env.REALM_GQL_URL || "";
     const apiKey = RegistryClient.getAPIKey();
 
-    const nameQuery = `{name:"${name}"}`;
-    const tagsQuery = `{tags_in: ["${tags.join('","')}"]}`;
-
-    const res = await axios.post<GraphQLPayload<WrappedRegistryFunctions>>(
+    const res = await axios.post<GraphQLPayload<GQLFindFunctionsPayload>>(
       realmGraphQLUrl,
       {
         query: `
-      {
+      query SearchFunctions(
+        $name: String!,
+        $tags: [String]!
+      ) {
         function_registries(query: {
          OR: [
-          ${name !== "" ? nameQuery : ""},
-          ${tags.length !== 0 ? tagsQuery : ""}
+           {name: $name},
+           {tags_in: $tags}
           ]
         }) {
           _id

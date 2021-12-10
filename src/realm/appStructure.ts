@@ -57,6 +57,7 @@ export const getRealmRootDir = async (maxDepth = 5): Promise<string> => {
     if (isRootDir) {
       return cwd;
     }
+    cwd = path.dirname(cwd);
   }
   return "";
 };
