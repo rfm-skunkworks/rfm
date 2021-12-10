@@ -140,7 +140,7 @@ const functionNameSchema: {
   properties: {
     name: {
       description: colors.cyan("Enter a name for this function"),
-      pattern: /^[a-zA-Z-_]+$/,
+      pattern: /^[a-zA-Z-_]*$/,
       message: "name can only contain letters, underscores, and hyphens",
       required: true,
     },
@@ -198,8 +198,9 @@ const valueNamePromptSchema = {
   properties: {
     name: {
       description: colors.cyan("Enter value's name (enter 'n' if done)"),
-      pattern: /^([a-zA-Z\s\-]|[0-9]\n)*$/,
-      message: "name must contain only alphanumeric characters or '-'",
+      pattern: /^[a-zA-Z0-9]+[a-zA-Z0-9-_]*$/,
+      message:
+        "value name can only contain letters, numbers, underscores, and hyphens. must start with a letter or number",
       required: true,
     },
   },

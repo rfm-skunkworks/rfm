@@ -9,6 +9,8 @@ import { RegistryClient } from "../clients/realm";
 import { RFMFunctions } from "../models/functionRegistry";
 import { logDebugInfo, withErrors } from "./common";
 
+const realmValuesPath = "/values";
+
 async function installFunctionFromRegistry(
   funcName: string,
   saveToConfig: boolean
@@ -30,6 +32,34 @@ async function installFunctionFromRegistry(
   const newFunctionFile = path.join(functionsDir, `${functionName}.js`);
   try {
     fs.writeFileSync(newFunctionFile, functionSource, {});
+
+    if (registryFunc.values.length > 0) {
+      const valuesPath = path.join(appRootDir, realmValuesPath);
+      let wroteValue = false;
+      registryFunc.values.forEach((value) => {
+        const valueJSONPath = path.join(valuesPath, `${value.name}.json`);
+        if (!fs.existsSync(valueJSONPath)) {
+          fs.writeFileSync(valueJSONPath, JSON.stringify({}));
+          wroteValue = true;
+          console.log(
+            chalk.yellowBright(
+              `Saving value "${value.name}" to ${valueJSONPath}`
+            )
+          );
+          console.log(
+            chalk.yellowBright(`    Description: ${value.description}`)
+          );
+        }
+      });
+      if (wroteValue) {
+        console.log(
+          chalk.yellowBright(
+            "\nPlease update the contents of the <value>.JSON files\n"
+          )
+        );
+      }
+    }
+
     if (saveToConfig) {
       const rfmConfigPath = path.join(appRootDir, fileNames.rfmJSON);
       let functions: RFMFunctions = {};
@@ -50,7 +80,7 @@ async function installFunctionFromRegistry(
     }
     return newFunctionFile;
   } catch (err) {
-    throw Error(`failed to write function to file: ${err}`);
+    throw Error(`failed to write ${functionName} to file: ${err}`);
   }
 }
 
@@ -81,16 +111,6 @@ async function installFunctionsFromConfig() {
       `invalid ${fileNames.rfmJSON} file: 'functions' must be an object`
     );
   }
-  // const valuesURL = process.env.REALM_VALUES_URL;
-  // if (!valuesURL) {
-  //   throw Error("could not find REALM_VALUES_URL in environment");
-  // }
-  // const res = await axios.get(valuesURL, {
-  //   headers: {
-  //     apiKey: RegistryClient.getAPIKey(),
-  //   },
-  // });
-  // console.log(res.data);
 
   for (const [name, value] of Object.entries(functions)) {
     if (value.values && !Array.isArray(value.values)) {
@@ -98,7 +118,7 @@ async function installFunctionsFromConfig() {
     }
 
     const newFunctionFile = await installFunctionFromRegistry(name, false);
-    console.log(chalk.greenBright(`installed ${name} to ${newFunctionFile}`));
+    console.log(chalk.greenBright(`Installed ${name} to ${newFunctionFile}`));
   }
 }
 
@@ -120,14 +140,14 @@ export const createInstallCommand = (): Command => {
         }
         if (funcName) {
           console.log(
-            chalk.yellow(`Requested installation of function: '${funcName}'`)
+            chalk.yellow(`Requested installation of function: "${funcName}"\n`)
           );
           let newFunctionFile = await installFunctionFromRegistry(
             funcName,
             options.save
           );
           console.log(
-            chalk.greenBright(`Wrote function to ${newFunctionFile}`)
+            chalk.greenBright(`Saved "${funcName}" to ${newFunctionFile}`)
           );
         } else {
           await installFunctionsFromConfig();
