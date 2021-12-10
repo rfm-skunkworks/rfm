@@ -59,6 +59,7 @@ export const createDeleteCommand = (): Command => {
         if (!functionFound) {
           throw Error(`You do not own a function named '${functionName}'`);
         }
+        process.exit(0);
       })
     );
 
