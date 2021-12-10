@@ -1,7 +1,7 @@
 import { Command, createCommand } from "commander";
 import chalk from "chalk";
 
-import { withErrors } from "./common";
+import { logDebugInfo, withErrors } from "./common";
 import { RegistryClient } from "../clients/realm";
 
 function parseCommaSeparatedList(value: string, dummyPrevious: any) {
@@ -25,11 +25,16 @@ export const createSearchCommand = (): Command => {
     .description(
       "Search for realm functions by name and/or comma seperated list of tags"
     )
+    .option("-d, --debug", "log debug information")
     .option("-n, --name [string]", "name", parseName)
-    .option("-t, --tags [tags]", "tags", parseCommaSeparatedList)
+    .option("-t, --tags <tags...>", "tags", parseCommaSeparatedList)
     .action(
       withErrors(async (options) => {
-        if (Object.keys(options).length === 0) {
+        if (options.debug) {
+          logDebugInfo(options, {});
+        }
+
+        if (!options.name && !options.tags) {
           throw Error("provide either name (-n) or tags (-t)");
         }
 

@@ -152,6 +152,7 @@ export class RegistryClient {
         }
       }
       `,
+        variables: { name, tags },
       },
       {
         headers: {
